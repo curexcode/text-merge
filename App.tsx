@@ -1,11 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 
 const App: React.FC = () => {
   const [text1, setText1] = useState<string>('');
   const [text2, setText2] = useState<string>('');
   const [isCopied, setIsCopied] = useState<boolean>(false);
 
-  const mergedText = text1 || text2 ? `${text1} - ${text2}` : '';
+  const mergedText = useMemo(() => {
+    if (!text1 && !text2) {
+      return '';
+    }
+
+    const lines1 = text1.split('\n');
+    const lines2 = text2.split('\n');
+    const maxLength = Math.max(lines1.length, lines2.length);
+
+    const mergedLines = Array.from({ length: maxLength }, (_, i) => {
+      const line1 = lines1[i] || '';
+      const line2 = lines2[i] || '';
+
+      // If both corresponding lines are empty, the merged line is also empty.
+      if (!line1 && !line2) {
+        return '';
+      }
+      
+      return `${line1} - ${line2}`;
+    });
+
+    return mergedLines.join('\n');
+  }, [text1, text2]);
 
   const handleCopy = async () => {
     if (!mergedText) return;
