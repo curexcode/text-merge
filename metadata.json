@@ -1,0 +1,5 @@
+{
+  "name": "Text Merger",
+  "description": "A simple web application to merge text from two text boxes into a third, separated by a hyphen.",
+  "requestFramePermissions": []
+}
