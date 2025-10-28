@@ -1,9 +1,39 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 
 const App: React.FC = () => {
-  const [text1, setText1] = useState<string>('');
-  const [text2, setText2] = useState<string>('');
+  const [text1, setText1] = useState<string>(() => {
+    try {
+      return localStorage.getItem('textMerger-text1') || '';
+    } catch (e) {
+      console.error('Failed to read text1 from localStorage', e);
+      return '';
+    }
+  });
+  const [text2, setText2] = useState<string>(() => {
+    try {
+      return localStorage.getItem('textMerger-text2') || '';
+    } catch (e) {
+      console.error('Failed to read text2 from localStorage', e);
+      return '';
+    }
+  });
   const [isCopied, setIsCopied] = useState<boolean>(false);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('textMerger-text1', text1);
+    } catch (e) {
+      console.error('Failed to save text1 to localStorage', e);
+    }
+  }, [text1]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('textMerger-text2', text2);
+    } catch (e) {
+      console.error('Failed to save text2 to localStorage', e);
+    }
+  }, [text2]);
 
   const mergedText = useMemo(() => {
     if (!text1 && !text2) {
@@ -40,18 +70,39 @@ const App: React.FC = () => {
       // Optionally, show an error message to the user
     }
   };
+  
+  const handleClear = () => {
+    try {
+        localStorage.removeItem('textMerger-text1');
+        localStorage.removeItem('textMerger-text2');
+    } catch (e) {
+        console.error('Failed to clear localStorage', e);
+    }
+    setText1('');
+    setText2('');
+  };
 
   return (
     <main className="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8">
-      <div className="w-full max-w-5xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 sm:p-8 space-y-8">
+      <div className="w-full max-w-5xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6">
         <header className="text-center">
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
             Text Merger
           </h1>
           <p className="mt-2 text-slate-600 dark:text-slate-400">
-            Combine text from two sources into one. Your changes are merged in real-time.
+            Combine text from two sources into one. Your changes are saved automatically.
           </p>
         </header>
+        
+        <div className="flex justify-end">
+            <button
+              onClick={handleClear}
+              className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-800 focus:ring-red-500 transition-colors"
+              aria-label="Clear all text and stored data"
+            >
+              Clear Data
+            </button>
+        </div>
 
         <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
